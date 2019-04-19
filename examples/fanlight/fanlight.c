@@ -22,52 +22,52 @@ static void wifi_init() {
     sdk_wifi_station_connect();
 }
 
-const int led_gpio1 = 2;
-bool led1_on = false;
+const int light_gpio1 = 2;
+bool light_on = false;
 
-void led1_write(bool on) {
-    gpio_write(led_gpio1, on ? 0 : 1);
+void light_write(bool on) {
+    gpio_write(light_gpio1, on ? 0 : 1);
 }
 
-void led_init() {
-    gpio_enable(led_gpio1, GPIO_OUTPUT);
-    led1_write(led1_on);
+void light_init() {
+    gpio_enable(light_gpio1, GPIO_OUTPUT);
+    light_write(light_on);
 }
 
-void led_identify_task(void *_args) {
+void light_identify_task(void *_args) {
     for (int i=0; i<3; i++) {
         for (int j=0; j<2; j++) {
-            led1_write(true);
+            light_write(true);
             vTaskDelay(100 / portTICK_PERIOD_MS);
-            led1_write(false);
+            light_write(false);
             vTaskDelay(100 / portTICK_PERIOD_MS);
         }
 
         vTaskDelay(250 / portTICK_PERIOD_MS);
     }
 
-    led1_write(led1_on);
+    light_write(light_on);
 
     vTaskDelete(NULL);
 }
 
-void led_identify(homekit_value_t _value) {
-    printf("LED identify\n");
-    xTaskCreate(led_identify_task, "LED identify", 128, NULL, 2, NULL);
+void light_identify(homekit_value_t _value) {
+    printf("Light identify\n");
+    xTaskCreate(light_identify_task, "LED identify", 128, NULL, 2, NULL);
 }
 
-homekit_value_t led_on_get() {
-    return HOMEKIT_BOOL(led1_on);
+homekit_value_t light_on_get() {
+    return HOMEKIT_BOOL(light_on);
 }
 
-void led_on_set(homekit_value_t value) {
+void light_on_set(homekit_value_t value) {
     if (value.format != homekit_format_bool) {
         printf("Invalid value format: %d\n", value.format);
         return;
     }
 
-    led1_on = value.bool_value;
-    led1_write(led1_on);
+    light_on = value.bool_value;
+    light_write(light_on);
 }
 
 
@@ -77,17 +77,17 @@ homekit_accessory_t *accessories[] = {
             HOMEKIT_CHARACTERISTIC(NAME, "Light"),
             HOMEKIT_CHARACTERISTIC(MANUFACTURER, "ALR"),
             HOMEKIT_CHARACTERISTIC(SERIAL_NUMBER, "23031999AAAA"),
-            HOMEKIT_CHARACTERISTIC(MODEL, "LED"),
-            HOMEKIT_CHARACTERISTIC(FIRMWARE_REVISION, "0.1"),
-            HOMEKIT_CHARACTERISTIC(IDENTIFY, led_identify),
+            HOMEKIT_CHARACTERISTIC(MODEL, "LIGHT"),
+            HOMEKIT_CHARACTERISTIC(FIRMWARE_REVISION, "1.0"),
+            HOMEKIT_CHARACTERISTIC(IDENTIFY, light_identify),
             NULL
         }),
         HOMEKIT_SERVICE(LIGHTBULB, .primary=true, .characteristics=(homekit_characteristic_t*[]){
             HOMEKIT_CHARACTERISTIC(NAME, "Light"),
             HOMEKIT_CHARACTERISTIC(
                 ON, false,
-                .getter=led_on_get,
-                .setter=led_on_set
+                .getter=light_on_get,
+                .setter=light_on_set
             ),
             NULL
         }),
@@ -105,6 +105,6 @@ void user_init(void) {
     uart_set_baud(0, 115200);
 
     wifi_init();
-    led_init();
+    light_init();
     homekit_server_init(&config);
 }
