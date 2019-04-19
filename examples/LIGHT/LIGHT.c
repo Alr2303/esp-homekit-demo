@@ -31,13 +31,13 @@ void led1_write(bool on) {
 
 void led_init() {
     gpio_enable(led_gpio1, GPIO_OUTPUT);
-    led_write(led1_on);
+    led1_write(led1_on);
 }
 
 void led_identify_task(void *_args) {
     for (int i=0; i<3; i++) {
         for (int j=0; j<2; j++) {
-            led_write(true);
+            led1_write(true);
             vTaskDelay(100 / portTICK_PERIOD_MS);
             led_write(false);
             vTaskDelay(100 / portTICK_PERIOD_MS);
@@ -46,7 +46,7 @@ void led_identify_task(void *_args) {
         vTaskDelay(250 / portTICK_PERIOD_MS);
     }
 
-    led_write(led1_on);
+    led1_write(led1_on);
 
     vTaskDelete(NULL);
 }
@@ -67,7 +67,7 @@ void led_on_set(homekit_value_t value) {
     }
 
     led1_on = value.bool_value;
-    led_write(led1_on);
+    led1_write(led1_on);
 }
 
 
