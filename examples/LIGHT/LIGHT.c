@@ -39,7 +39,7 @@ void led_identify_task(void *_args) {
         for (int j=0; j<2; j++) {
             led1_write(true);
             vTaskDelay(100 / portTICK_PERIOD_MS);
-            led_write(false);
+            led1_write(false);
             vTaskDelay(100 / portTICK_PERIOD_MS);
         }
 
