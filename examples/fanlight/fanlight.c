@@ -70,8 +70,8 @@ void light_identify_task(void *_args) {
 }
 //FAN IDENTIFY TASK
 void fan_identify_task(void *_args) {
-    for (int k=0; k<3; k++) {
-        for (int l=0; l<2; l++) {
+    for (int i=0; i<3; i++) {
+        for (int j=0; j<2; j++) {
             fan_write(true);
             vTaskDelay(100 / portTICK_PERIOD_MS);
             fan_write(false);
