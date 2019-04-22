@@ -1,4 +1,4 @@
-PROGRAM = LIGHT
+PROGRAM = fan
 
 EXTRA_COMPONENTS = \
 	extras/http-parser \
