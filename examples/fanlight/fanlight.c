@@ -56,10 +56,10 @@ void identify_task(void *_args) {
     for (int i=0; i<3; i++) {
         for (int j=0; j<2; j++) {
             light_write(true);
-            fan_write(true);
+            //fan_write(true);
             vTaskDelay(100 / portTICK_PERIOD_MS);
             light_write(false);
-            fan_write(false);
+            //fan_write(false);
             vTaskDelay(100 / portTICK_PERIOD_MS);
         }
 
@@ -159,11 +159,10 @@ homekit_accessory_t *accessories[] = {
                 ON, false,
                 .getter=fan_on_get,
                 .setter=fan_on_set
+                NULL
                 }),
             NULL
         }),
-        NULL
-    }),
     NULL
 };
 
@@ -178,5 +177,6 @@ void user_init(void) {
     wifi_init();
     light_init();
     fan_init();
+    
     homekit_server_init(&config);
 }
