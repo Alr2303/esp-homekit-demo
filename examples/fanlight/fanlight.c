@@ -159,14 +159,11 @@ homekit_accessory_t *accessories[] = {
                 ON, false,
                 .getter=fan_on_get,
                 .setter=fan_on_set
-                NULL
-                
-        
-            
+                }),
+            NULL
         }),
         NULL
     }),
-    
     NULL
 };
 
