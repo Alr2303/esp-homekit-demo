@@ -135,10 +135,7 @@ homekit_accessory_t *accessories[] = {
                 .getter=light_on_get,
                 .setter=light_on_set
                 NULL
-                
-        
-            
-        }),
+              ),
         NULL
     }),
     //FOR FAN
@@ -160,7 +157,7 @@ homekit_accessory_t *accessories[] = {
                 .getter=fan_on_get,
                 .setter=fan_on_set
                 NULL
-                }),
+                ),
             NULL
         }),
     NULL
