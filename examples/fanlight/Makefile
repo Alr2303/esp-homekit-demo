@@ -6,7 +6,7 @@ EXTRA_COMPONENTS = \
 	$(abspath ../../components/common/cJSON) \
 	$(abspath ../../components/common/homekit)
 
-FLASH_SIZE ?= 32
+FLASH_SIZE ?= 16
 
 EXTRA_CFLAGS += -I../.. -DHOMEKIT_SHORT_APPLE_UUIDS
 
