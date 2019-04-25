@@ -138,6 +138,8 @@ homekit_accessory_t *accessories[] = {
               ),
         NULL
     }),
+         NULL
+    }),
     //FOR FAN
     HOMEKIT_ACCESSORY(.id=2, .category=homekit_accessory_category_fan, .services=(homekit_service_t*[]){
         HOMEKIT_SERVICE(ACCESSORY_INFORMATION, .characteristics=(homekit_characteristic_t*[]){
@@ -160,6 +162,8 @@ homekit_accessory_t *accessories[] = {
                 ),
             NULL
         }),
+         NULL
+    }),
     NULL
 };
 
