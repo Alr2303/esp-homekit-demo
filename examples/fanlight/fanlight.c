@@ -93,7 +93,7 @@ homekit_value_t fan_on_get() {
 }
 
 
-void light_on_set(homekit_value_t value) {
+int light_on_set(homekit_value_t value) {
     if (value.format != homekit_format_bool) {
         printf("Invalid value format: %d\n", value.format);
         return;
@@ -104,7 +104,7 @@ void light_on_set(homekit_value_t value) {
 }
 
 
-void fan_on_set(homekit_value_t value) {
+int fan_on_set(homekit_value_t value) {
     if (value.format != homekit_format_bool) {
         printf("Invalid value format: %d\n", value.format);
         return;
