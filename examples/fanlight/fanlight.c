@@ -56,10 +56,10 @@ void identify_task(void *_args) {
     for (int i=0; i<3; i++) {
         for (int j=0; j<2; j++) {
             light_write(true);
-            //fan_write(true);
+            fan_write(true);
             vTaskDelay(100 / portTICK_PERIOD_MS);
             light_write(false);
-            //fan_write(false);
+            fan_write(false);
             vTaskDelay(100 / portTICK_PERIOD_MS);
         }
 
@@ -93,7 +93,7 @@ homekit_value_t fan_on_get() {
 }
 
 
-int light_on_set(homekit_value_t value) {
+void light_on_set(homekit_value_t value) {
     if (value.format != homekit_format_bool) {
         printf("Invalid value format: %d\n", value.format);
         return;
@@ -104,7 +104,7 @@ int light_on_set(homekit_value_t value) {
 }
 
 
-int fan_on_set(homekit_value_t value) {
+void fan_on_set(homekit_value_t value) {
     if (value.format != homekit_format_bool) {
         printf("Invalid value format: %d\n", value.format);
         return;
