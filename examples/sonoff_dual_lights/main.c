@@ -210,7 +210,20 @@ homekit_accessory_t *accessories[] = {
             &top_light_on,
             NULL
         }),
-        HOMEKIT_SERVICE(LIGHTBULB, .characteristics=(homekit_characteristic_t*[]){
+        NULL
+    }),
+    NULL
+    HOMEKIT_ACCESSORY(.id=2, .category=homekit_accessory_category_fan, .services=(homekit_service_t*[]){
+        HOMEKIT_SERVICE(ACCESSORY_INFORMATION, .characteristics=(homekit_characteristic_t*[]){
+            &name,
+            HOMEKIT_CHARACTERISTIC(MANUFACTURER, "HaPK"),
+            HOMEKIT_CHARACTERISTIC(SERIAL_NUMBER, "0"),
+            HOMEKIT_CHARACTERISTIC(MODEL, "Dual Lamp"),
+            HOMEKIT_CHARACTERISTIC(FIRMWARE_REVISION, "0.1"),
+            HOMEKIT_CHARACTERISTIC(IDENTIFY, lamp_identify),
+            NULL
+        }),
+        HOMEKIT_SERVICE(FAN, .primary=true, .characteristics=(homekit_characteristic_t*[]){
             HOMEKIT_CHARACTERISTIC(NAME, "Bottom Light"),
             &bottom_light_on,
             NULL
