@@ -42,7 +42,7 @@ void led_init() {
 
 void fan_init() {
     gpio_enable(fan_gpio, GPIO_OUTPUT);
-    led_write1(fan_on);
+    fan_write(fan_on);
 }
 
 void led_identify_task(void *_args) {
