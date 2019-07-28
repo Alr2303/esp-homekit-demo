@@ -23,16 +23,16 @@ static void wifi_init() {
 }
 
 const int led_gpio = 2;
-const int led_gpio1 = 4;
+const int fan_gpio = 4;
 bool led_on = false;
-bool led_on1 = false;
+bool fan_on = false;
 
 void led_write(bool on) {
     gpio_write(led_gpio, on ? 0 : 1);
 }
 
-void led_write1(bool on) {
-    gpio_write(led_gpio1, on ? 0 : 1);
+void fan_write(bool on) {
+    gpio_write(fan_gpio, on ? 0 : 1);
 }
 
 void led_init() {
@@ -40,9 +40,9 @@ void led_init() {
     led_write(led_on);
 }
 
-void led_init1() {
-    gpio_enable(led_gpio1, GPIO_OUTPUT);
-    led_write1(led_on1);
+void fan_init() {
+    gpio_enable(fan_gpio, GPIO_OUTPUT);
+    led_write1(fan_on);
 }
 
 void led_identify_task(void *_args) {
@@ -63,19 +63,19 @@ void led_identify_task(void *_args) {
 }
 
 
-void led_identify_task(void *_args) {
+void fan_identify_task(void *_args) {
     for (int i=0; i<3; i++) {
         for (int j=0; j<2; j++) {
-            led_write1(true);
+            fan_write(true);
             vTaskDelay(100 / portTICK_PERIOD_MS);
-            led_write1(false);
+            fan_write(false);
             vTaskDelay(100 / portTICK_PERIOD_MS);
         }
 
         vTaskDelay(250 / portTICK_PERIOD_MS);
     }
 
-    led_write1(led_on1);
+    fan_write(led_on1);
 
     vTaskDelete(NULL);
 }
@@ -102,23 +102,23 @@ void led_on_set(homekit_value_t value) {
 }
 
 
-void led_identify(homekit_value_t _value) {
-    printf("LED identify1\n");
-    xTaskCreate(led_identify_task, "LED identify1", 128, NULL, 2, NULL);
+void fan_identify(homekit_value_t _value) {
+    printf("FAN identify\n");
+    xTaskCreate(fan_identify_task, "FAN identify", 128, NULL, 2, NULL);
 }
 
-homekit_value_t led_on_get1() {
-    return HOMEKIT_BOOL(led_on1);
+homekit_value_t fan_on_get() {
+    return HOMEKIT_BOOL(fan_on);
 }
 
-void led_on_set1(homekit_value_t value) {
+void fan_on_set(homekit_value_t value) {
     if (value.format != homekit_format_bool) {
         printf("Invalid value format: %d\n", value.format);
         return;
     }
 
-    led_on1 = value.bool_value;
-    led_write1(led_on1);
+    fan_on = value.bool_value;
+    fan_write(fan_on);
 }
 
 
@@ -145,27 +145,22 @@ homekit_accessory_t *accessories[] = {
         }),
         NULL
     }),
-    NULL
-};
-
-
-homekit_accessory_t *accessories[] = {
-    HOMEKIT_ACCESSORY(.id=2, .category=homekit_accessory_category_lightbulb, .services=(homekit_service_t*[]){
+    HOMEKIT_ACCESSORY(.id=2, .category=homekit_accessory_category_fan, .services=(homekit_service_t*[]){
         HOMEKIT_SERVICE(ACCESSORY_INFORMATION, .characteristics=(homekit_characteristic_t*[]){
-            HOMEKIT_CHARACTERISTIC(NAME, "Light"),
+            HOMEKIT_CHARACTERISTIC(NAME, "Fan"),
             HOMEKIT_CHARACTERISTIC(MANUFACTURER, "ALR"),
             HOMEKIT_CHARACTERISTIC(SERIAL_NUMBER, "23031999AAAA"),
-            HOMEKIT_CHARACTERISTIC(MODEL, "Light"),
+            HOMEKIT_CHARACTERISTIC(MODEL, "Fan"),
             HOMEKIT_CHARACTERISTIC(FIRMWARE_REVISION, "0.1"),
-            HOMEKIT_CHARACTERISTIC(IDENTIFY, led_identify1),
+            HOMEKIT_CHARACTERISTIC(IDENTIFY, fan_identify),
             NULL
         }),
-        HOMEKIT_SERVICE(LIGHTBULB, .primary=true, .characteristics=(homekit_characteristic_t*[]){
-            HOMEKIT_CHARACTERISTIC(NAME, "Light"),
+        HOMEKIT_SERVICE(FAN, .primary=true, .characteristics=(homekit_characteristic_t*[]){
+            HOMEKIT_CHARACTERISTIC(NAME, "Fan"),
             HOMEKIT_CHARACTERISTIC(
                 ON, false,
-                .getter=led_on_get1,
-                .setter=led_on_set1
+                .getter=fan_on_get,
+                .setter=fan_on_set
             ),
             NULL
         }),
