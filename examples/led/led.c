@@ -75,7 +75,7 @@ void fan_identify_task(void *_args) {
         vTaskDelay(250 / portTICK_PERIOD_MS);
     }
 
-    fan_write(led_on1);
+    fan_write(fan_on);
 
     vTaskDelete(NULL);
 }
