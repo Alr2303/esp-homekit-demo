@@ -47,9 +47,9 @@ static void wifi_init() {
 
 // The GPIO pin that is connected to the relay on the Sonoff Dual R2
 const int relay0_gpio = 12;
-const int relay1_gpio = 5;
+const int relay1_gpio = 13;
 // The GPIO pin that is connected to the LED on the Sonoff Dual R2
-const int led_gpio = 13;
+const int led_gpio = 5;
 // The GPIO pin that is oconnected to the button on the Sonoff Dual R2
 const int button_gpio = 9;
 
