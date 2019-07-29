@@ -169,8 +169,25 @@ void toggle_callback(uint8_t gpio) {
 void lamp_identify_task(void *_args) {
     // We identify the Sonoff by turning top light on
     // and flashing with bottom light
+    for (int i=0; i<3; i++) {
+        for (int j=0; j<2; j++) {
+            relay_write(relay0_gpio, true);
+            vTaskDelay(100 / portTICK_PERIOD_MS);
+            relay_write(relay0_gpio, false);
+            vTaskDelay(100 / portTICK_PERIOD_MS);
+        }
+
+        vTaskDelay(250 / portTICK_PERIOD_MS);
+    }
+
     relay_write(relay0_gpio, true);
 
+    vTaskDelete(NULL);
+}
+
+void fan_identify_task(void *_args) {
+    // We identify the Sonoff by turning top light on
+    // and flashing with bottom light
     for (int i=0; i<3; i++) {
         for (int j=0; j<2; j++) {
             relay_write(relay1_gpio, true);
@@ -192,15 +209,18 @@ void lamp_identify(homekit_value_t _value) {
     xTaskCreate(lamp_identify_task, "Lamp identify", 128, NULL, 2, NULL);
 }
 
-homekit_characteristic_t name = HOMEKIT_CHARACTERISTIC_(NAME, "Dual Lamp");
+void fan_identify(homekit_value_t _value) {
+    printf("Fan identify\n");
+    xTaskCreate(fan_identify_task, "Fan identify", 128, NULL, 2, NULL);
+}
 
 homekit_accessory_t *accessories[] = {
     HOMEKIT_ACCESSORY(.id=1, .category=homekit_accessory_category_lightbulb, .services=(homekit_service_t*[]){
         HOMEKIT_SERVICE(ACCESSORY_INFORMATION, .characteristics=(homekit_characteristic_t*[]){
-            &name,
-            HOMEKIT_CHARACTERISTIC(MANUFACTURER, "HaPK"),
+	    HOMEKIT_CHARACTERISTIC(NAME, "Light"),
+            HOMEKIT_CHARACTERISTIC(MANUFACTURER, "ALR"),
             HOMEKIT_CHARACTERISTIC(SERIAL_NUMBER, "0"),
-            HOMEKIT_CHARACTERISTIC(MODEL, "Dual Lamp"),
+            HOMEKIT_CHARACTERISTIC(MODEL, "light"),
             HOMEKIT_CHARACTERISTIC(FIRMWARE_REVISION, "0.1"),
             HOMEKIT_CHARACTERISTIC(IDENTIFY, lamp_identify),
             NULL
@@ -208,6 +228,18 @@ homekit_accessory_t *accessories[] = {
         HOMEKIT_SERVICE(LIGHTBULB, .primary=true, .characteristics=(homekit_characteristic_t*[]){
             HOMEKIT_CHARACTERISTIC(NAME, "Top Light"),
             &top_light_on,
+            NULL
+        }),
+        NULL
+    }),
+    HOMEKIT_ACCESSORY(.id=2, .category=homekit_accessory_category_fan, .services=(homekit_service_t*[]){
+        HOMEKIT_SERVICE(ACCESSORY_INFORMATION, .characteristics=(homekit_characteristic_t*[]){
+	    HOMEKIT_CHARACTERISTIC(NAME, "Fan"),
+            HOMEKIT_CHARACTERISTIC(MANUFACTURER, "ALR"),
+            HOMEKIT_CHARACTERISTIC(SERIAL_NUMBER, "0"),
+            HOMEKIT_CHARACTERISTIC(MODEL, "Fan"),
+            HOMEKIT_CHARACTERISTIC(FIRMWARE_REVISION, "0.1"),
+            HOMEKIT_CHARACTERISTIC(IDENTIFY, fan_identify),
             NULL
         }),
         HOMEKIT_SERVICE(LIGHTBULB, .characteristics=(homekit_characteristic_t*[]){
@@ -222,12 +254,8 @@ homekit_accessory_t *accessories[] = {
 
 homekit_server_config_t config = {
     .accessories = accessories,
-    .password = "111-11-111"
+    .password = "230-31-999"
 };
-
-void on_wifi_ready() {
-    homekit_server_init(&config);
-}
 
 void create_accessory_name() {
     uint8_t macaddr[6];
@@ -251,7 +279,7 @@ void user_init(void) {
 
     // wifi_config_init("dual lamp", NULL, on_wifi_ready);
     wifi_init();
-    on_wifi_ready();
+    homekit_server_init(&config);
 
     if (toggle_create(button_gpio, toggle_callback)) {
         printf("Failed to initialize button\n");
