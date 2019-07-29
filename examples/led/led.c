@@ -22,10 +22,10 @@ static void wifi_init() {
     sdk_wifi_station_connect();
 }
 
-const int led_gpio = 2;
-const int fan_gpio = 4;
-bool led_on = false;
-bool fan_on = false;
+const int led_gpio = 12;
+const int fan_gpio = 13;
+bool led_on = true;
+bool fan_on = true;
 
 void led_write(bool on) {
     gpio_write(led_gpio, on ? 0 : 1);
