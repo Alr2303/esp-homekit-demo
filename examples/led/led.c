@@ -23,7 +23,7 @@ static void wifi_init() {
 }
 
 const int led_gpio = 12;
-const int fan_gpio = 13;
+const int fan_gpio = 5;
 bool led_on = true;
 bool fan_on = true;
 
