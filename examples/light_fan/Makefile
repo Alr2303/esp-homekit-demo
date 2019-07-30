@@ -1,4 +1,4 @@
-PROGRAM = sonoff_dual_lights
+PROGRAM = light_fan
 
 EXTRA_COMPONENTS = \
 	extras/http-parser \
