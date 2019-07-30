@@ -1,4 +1,4 @@
-PROGRAM = led
+PROGRAM = speed
 
 EXTRA_COMPONENTS = \
 	extras/http-parser \
