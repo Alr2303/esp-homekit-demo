@@ -25,13 +25,10 @@ static void wifi_init() {
 const int led_gpio = 12;
 const int fan_gpio = 5;
 const int fan_speed_low = 4;
-const int fan_speed_mid = 0;
-const int fan_speed_high = 2;
 bool led_on = false;
 bool fan_on = false;
 bool fan_low = false;
-bool fan_mid = false;
-bool fan_high = false;
+
 
 void led_write(bool on) {
     gpio_write(led_gpio, on ? 0 : 1);
@@ -46,16 +43,6 @@ void fan_speed_low_write(bool on) {
     gpio_write(fan_speed_low, on ? 0 : 1);
 }
 
-
-void fan_speed_mid_write(bool on) {
-    gpio_write(fan_speed_mid, on ? 0 : 1);
-}
-
-void fan_speed_high_write(bool on) {
-    gpio_write(fan_speed_high, on ? 0 : 1);
-}
-
-
 void led_init() {
     gpio_enable(led_gpio, GPIO_OUTPUT);
     led_write(led_on);
@@ -69,14 +56,6 @@ void fan_init() {
 void fan_init_low() {
     gpio_enable(fan_speed_low, GPIO_OUTPUT);
     fan_speed_low_write(fan_low);    
-}
-void fan_init_mid() {   
-    gpio_enable(fan_speed_mid, GPIO_OUTPUT);
-    fan_speed_mid_write(fan_mid);    
-}
-void fan_init_high() {
-        gpio_enable(fan_speed_high, GPIO_OUTPUT);
-    fan_speed_high_write(fan_high);
 }
 
 void led_identify_task(void *_args) {
@@ -170,34 +149,6 @@ void fan_low_speed_set(homekit_value_t value) {
     fan_speed_low_write(fan_low);
 }
 
-homekit_value_t fan_mid_speed_get() {
-    return HOMEKIT_BOOL(fan_speed_mid);
-}
-
-void fan_mid_speed_set(homekit_value_t value) {
-    if (value.format != homekit_format_bool) {
-        printf("Invalid value format: %d\n", value.format);
-        return;
-    }
-
-    fan_mid = value.bool_value;
-    fan_speed_mid_write(fan_mid);
-}
-
-homekit_value_t fan_high_speed_get() {
-    return HOMEKIT_BOOL(fan_speed_high);
-}
-
-void fan_high_speed_set(homekit_value_t value) {
-    if (value.format != homekit_format_bool) {
-        printf("Invalid value format: %d\n", value.format);
-        return;
-    }
-
-    fan_high = value.bool_value;
-    fan_speed_high_write(fan_high);
-}
-
 homekit_accessory_t *accessories[] = {
     HOMEKIT_ACCESSORY(.id=1, .category=homekit_accessory_category_lightbulb, .services=(homekit_service_t*[]){
         HOMEKIT_SERVICE(ACCESSORY_INFORMATION, .characteristics=(homekit_characteristic_t*[]){
@@ -238,13 +189,9 @@ homekit_accessory_t *accessories[] = {
                 .setter=fan_on_set
             ),
             HOMEKIT_CHARACTERISTIC(
-                ROTATION_SPEED, false,
+                ROTATION_SPEED, 100,
                 .getter=fan_low_speed_get,
-                .setter=fan_low_speed_set,
-                .getter=fan_mid_speed_get,
-                .setter=fan_mid_speed_set,
-                .getter=fan_high_speed_get,
-                .setter=fan_high_speed_set
+                .setter=fan_low_speed_set,                
             ),
             NULL
         }),
@@ -265,7 +212,5 @@ void user_init(void) {
     led_init();
     fan_init();
     fan_init_low();
-    fan_init_mid();
-    fan_init_high();
     homekit_server_init(&config);
 }
