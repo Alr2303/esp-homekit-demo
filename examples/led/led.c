@@ -27,11 +27,11 @@ const int fan_gpio = 5;
 const int fan_speed_low = 4;
 const int fan_speed_mid = 0;
 const int fan_speed_high = 2;
-bool led_on = true;
-bool fan_on = true;
-bool fan_low = true;
-bool fan_mid = true;
-bool fan_high = true;
+bool led_on = false;
+bool fan_on = false;
+bool fan_low = false;
+bool fan_mid = false;
+bool fan_high = false;
 
 void led_write(bool on) {
     gpio_write(led_gpio, on ? 0 : 1);
@@ -66,12 +66,16 @@ void fan_init() {
     fan_write(fan_on);
 }
 
-void fan_speed() {
+void fan_speed_low() {
     gpio_enable(fan_speed_low, GPIO_OUTPUT);
-    fan_speed_low_write(fan_low);
+    fan_speed_low_write(fan_low);    
+}
+void fan_speed_mid() {   
     gpio_enable(fan_speed_mid, GPIO_OUTPUT);
-    fan_speed_mid_write(fan_mid);
-    gpio_enable(fan_speed_high, GPIO_OUTPUT);
+    fan_speed_mid_write(fan_mid);    
+}
+void fan_speed_high() {
+        gpio_enable(fan_speed_high, GPIO_OUTPUT);
     fan_speed_high_write(fan_high);
 }
 
@@ -260,6 +264,8 @@ void user_init(void) {
     wifi_init();
     led_init();
     fan_init();
-    fan_speed();
+    fan_speed_low();
+    fan_speed_mid();
+    fan_speed_high();
     homekit_server_init(&config);
 }
