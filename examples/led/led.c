@@ -66,6 +66,15 @@ void fan_init() {
     fan_write(fan_on);
 }
 
+void fan_speed() {
+    gpio_enable(fan_speed_low, GPIO_OUTPUT);
+    fan_speed_low_write(fan_low);
+    gpio_enable(fan_speed_mid, GPIO_OUTPUT);
+    fan_speed_mid_write(fan_mid);
+    gpio_enable(fan_speed_high, GPIO_OUTPUT);
+    fan_speed_high_write(fan_high);
+}
+
 void led_identify_task(void *_args) {
     for (int i=0; i<3; i++) {
         for (int j=0; j<2; j++) {
@@ -153,8 +162,8 @@ void fan_low_speed_set(homekit_value_t value) {
         return;
     }
 
-    fan_speed_low = value.bool_value;
-    fan_speed_low_write(fan_speed_low);
+    fan_low = value.bool_value;
+    fan_speed_low_write(fan_low);
 }
 
 homekit_value_t fan_mid_speed_get() {
@@ -167,8 +176,8 @@ void fan_mid_speed_set(homekit_value_t value) {
         return;
     }
 
-    fan_speed_mid = value.bool_value;
-    fan_speed_mid_write(fan_speed_mid);
+    fan_mid = value.bool_value;
+    fan_speed_mid_write(fan_mid);
 }
 
 homekit_value_t fan_high_speed_get() {
@@ -181,8 +190,8 @@ void fan_high_speed_set(homekit_value_t value) {
         return;
     }
 
-    fan_speed_high = value.bool_value;
-    fan_speed_high_write(fan_speed_high);
+    fan_high = value.bool_value;
+    fan_speed_high_write(fan_high);
 }
 
 homekit_accessory_t *accessories[] = {
@@ -227,7 +236,7 @@ homekit_accessory_t *accessories[] = {
             HOMEKIT_CHARACTERISTIC(
                 ROTATION_SPEED, false,
                 .getter=fan_low_speed_get,
-                .setter=fan_on_set,
+                .setter=fan_low_speed_set,
                 .getter=fan_mid_speed_get,
                 .setter=fan_mid_speed_set,
                 .getter=fan_high_speed_get,
@@ -250,5 +259,7 @@ void user_init(void) {
 
     wifi_init();
     led_init();
+    fan_init();
+    fan_speed();
     homekit_server_init(&config);
 }
