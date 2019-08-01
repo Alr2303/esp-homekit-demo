@@ -66,15 +66,15 @@ void fan_init() {
     fan_write(fan_on);
 }
 
-void fan_speed_low() {
+void fan_init_low() {
     gpio_enable(fan_speed_low, GPIO_OUTPUT);
     fan_speed_low_write(fan_low);    
 }
-void fan_speed_mid() {   
+void fan_init_mid() {   
     gpio_enable(fan_speed_mid, GPIO_OUTPUT);
     fan_speed_mid_write(fan_mid);    
 }
-void fan_speed_high() {
+void fan_init_high() {
         gpio_enable(fan_speed_high, GPIO_OUTPUT);
     fan_speed_high_write(fan_high);
 }
@@ -264,8 +264,8 @@ void user_init(void) {
     wifi_init();
     led_init();
     fan_init();
-    fan_speed_low();
-    fan_speed_mid();
-    fan_speed_high();
+    fan_init_low();
+    fan_init_mid();
+    fan_init_high();
     homekit_server_init(&config);
 }
