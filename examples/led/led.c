@@ -123,6 +123,35 @@ void fan_on_set(homekit_value_t value) {
 }
 
 
+homekit_value_t fan_speed_get() 
+{ 
+    return HOMEKIT_FLOAT(FAN.rotationSpeed); 
+}
+
+void fan_speed_set(homekit_value_t value) {
+  printf("FAN roation speed set: %f\n", value.float_value);
+  if (value.float_value > 0 && // prevent losing state from power off
+      value.float_value <= 4 && FAN.active) {
+
+    int times =
+      speed_adjust_table[(int)FAN.rotationSpeed][(int)value.float_value];
+
+    for (int i = 0; i < times; i++) {
+      ir_fan_rotation_speed();
+      vTaskDelay(1100 / portTICK_PERIOD_MS);
+    }
+
+    fan_rotation_speed.value = value;
+    FAN.rotationSpeed = value.float_value;
+  } else {
+    fan_rotation_speed.value = HOMEKIT_FLOAT(FAN.rotationSpeed);
+    homekit_characteristic_notify(&fan_rotation_speed,fan_rotation_speed.value);
+  }
+}
+
+
+
+
 homekit_accessory_t *accessories[] = {
     HOMEKIT_ACCESSORY(.id=1, .category=homekit_accessory_category_lightbulb, .services=(homekit_service_t*[]){
         HOMEKIT_SERVICE(ACCESSORY_INFORMATION, .characteristics=(homekit_characteristic_t*[]){
@@ -161,6 +190,13 @@ homekit_accessory_t *accessories[] = {
                 ON, false,
                 .getter=fan_on_get,
                 .setter=fan_on_set
+            ),
+            HOMEKIT_CHARACTERISTIC(
+                ROTATION_SPEED,1,
+                .min_value = (float[]){0}, 
+                .max_value = (float[]){3},
+                .getter = fan_speed_get, 
+                .setter = fan_speed_set
             ),
             NULL
         }),
