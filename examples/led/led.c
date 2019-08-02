@@ -24,10 +24,8 @@ static void wifi_init() {
 
 const int led_gpio = 12;
 const int fan_gpio = 5;
-const int fan_speed_low = 4;
 bool led_on = false;
 bool fan_on = false;
-bool fan_low = false;
 
 
 void led_write(bool on) {
@@ -38,11 +36,6 @@ void fan_write(bool on) {
     gpio_write(fan_gpio, on ? 0 : 1);
 }
 
-
-void fan_speed_low_write(bool on) {
-    gpio_write(fan_speed_low, on ? 0 : 1);
-}
-
 void led_init() {
     gpio_enable(led_gpio, GPIO_OUTPUT);
     led_write(led_on);
@@ -51,11 +44,6 @@ void led_init() {
 void fan_init() {
     gpio_enable(fan_gpio, GPIO_OUTPUT);
     fan_write(fan_on);
-}
-
-void fan_init_low() {
-    gpio_enable(fan_speed_low, GPIO_OUTPUT);
-    fan_speed_low_write(fan_low);    
 }
 
 void led_identify_task(void *_args) {
@@ -135,20 +123,6 @@ void fan_on_set(homekit_value_t value) {
 }
 
 
-homekit_value_t fan_low_speed_get() {
-    return HOMEKIT_BOOL(fan_speed_low);
-}
-
-void fan_low_speed_set(homekit_value_t value) {
-    if (value.format != homekit_format_bool) {
-        printf("Invalid value format: %d\n", value.format);
-        return;
-    }
-
-    fan_low = value.bool_value;
-    fan_speed_low_write(fan_low);
-}
-
 homekit_accessory_t *accessories[] = {
     HOMEKIT_ACCESSORY(.id=1, .category=homekit_accessory_category_lightbulb, .services=(homekit_service_t*[]){
         HOMEKIT_SERVICE(ACCESSORY_INFORMATION, .characteristics=(homekit_characteristic_t*[]){
@@ -188,11 +162,6 @@ homekit_accessory_t *accessories[] = {
                 .getter=fan_on_get,
                 .setter=fan_on_set
             ),
-            HOMEKIT_CHARACTERISTIC(
-                ROTATION_SPEED, 100,
-                .getter=fan_low_speed_get,
-                .setter=fan_low_speed_set,                
-            ),
             NULL
         }),
         NULL
@@ -211,6 +180,5 @@ void user_init(void) {
     wifi_init();
     led_init();
     fan_init();
-    fan_init_low();
     homekit_server_init(&config);
 }
