@@ -42,7 +42,7 @@ void fan_write(bool on) {
     gpio_write(fan_gpio, on ? 0 : 1);
 }
 
-void fan_speed_write(void) {
+void fan_speed_write(float on) {
     if(fan_speed<30){
         gpio_write(fan_low, on ? 0 : 1);
     }
