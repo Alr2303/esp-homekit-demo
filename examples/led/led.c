@@ -27,7 +27,7 @@ const int fan_gpio = 5;
 const int fan_low = 2;
 const int fan_mid = 0;
 const int fan_high = 4;
-float fan_speed = 100;
+int fan_speed = 100;
 bool led_on = true;
 bool fan_on = true;
 
@@ -42,14 +42,14 @@ void fan_write(bool on) {
     gpio_write(fan_gpio, on ? 0 : 1);
 }
 
-void fan_speed_write(float fan_speed) {
-    if(fan_speed<30){
+void fan_speed_write(int fan_s) {
+    if(fan_s<30){
         gpio_write(fan_low,1);
     }
-    else if((fan_speed>30)&(fan_speed<70)){
+    else if((fan_s>29)&(fan_s<70)){
         gpio_write(fan_mid,1);
     }
-    else{
+    else if (fan_s>69){
         gpio_write(fan_high,1);
     }
 }
@@ -157,14 +157,14 @@ void fan_on_set(homekit_value_t value) {
 
 
 homekit_value_t fan_speed_get() {
-    return HOMEKIT_FLOAT(fan_speed);
+    return HOMEKIT_INT(fan_speed);
 }
 void fan_speed_set(homekit_value_t value) {
-    if (value.format != homekit_format_float) {
+    if (value.format != homekit_format_int) {
         // printf("Invalid brightness-value format: %d\n", value.format);
         return;
     }
-    fan_speed = value.float_value;
+    fan_speed = value.int_value;
     fan_speed_write(fan_speed);
 }
 
