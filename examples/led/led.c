@@ -222,7 +222,7 @@ homekit_accessory_t *accessories[] = {
 homekit_server_config_t config = {
     .accessories = accessories,
     .password = "230-31-999",
-    .config = "ALR9"
+    .setupId = "ALR9",
 };
 
 void user_init(void) {
