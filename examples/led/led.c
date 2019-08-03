@@ -24,6 +24,10 @@ static void wifi_init() {
 
 const int led_gpio = 12;
 const int fan_gpio = 5;
+const int fan_low = 2;
+const int fan_mid = 0;
+const int fan_high = 4;
+float fan_speed = 100;
 bool led_on = true;
 bool fan_on = true;
 
@@ -38,6 +42,18 @@ void fan_write(bool on) {
     gpio_write(fan_gpio, on ? 0 : 1);
 }
 
+void fan_speed_write(void) {
+    if(fan_speed<30){
+        gpio_write(fan_low, on ? 0 : 1);
+    }
+    else if((fan_speed>30)&(fan_speed<70)){
+        gpio_write(fan_mid, on ? 0 : 1);
+    }
+    else{
+        gpio_write(fan_high, on ? 0 : 1);
+    }
+}
+
 void led_init() {
     gpio_enable(led_gpio, GPIO_OUTPUT);
     led_write(led_on);
@@ -48,10 +64,20 @@ void fan_init() {
     fan_write(fan_on);
 }
 
-homekit_characteristic_t fan_rotation_speed = HOMEKIT_CHARACTERISTIC_(
-  ROTATION_SPEED, 1, .min_value = (float[]){0}, .max_value = (float[]){3},
-  .getter = fan_speed_get, .setter = fan_speed_set);
+void fan_low_init() {
+    gpio_enable(fan_low, GPIO_OUTPUT);
+    fan_speed_write(fan_speed);
+}
 
+void fan_mid_init() {
+    gpio_enable(fan_mid, GPIO_OUTPUT);
+    fan_speed_write(fan_speed);
+}
+
+void fan_high_init() {
+    gpio_enable(fan_high, GPIO_OUTPUT);
+    fan_speed_write(fan_speed);
+}
 
 void led_identify_task(void *_args) {
     for (int i=0; i<3; i++) {
@@ -130,30 +156,17 @@ void fan_on_set(homekit_value_t value) {
 }
 
 
-homekit_value_t fan_speed_get() { 
-    return HOMEKIT_FLOAT(FAN.rotationSpeed); 
+homekit_value_t fan_speed_get() {
+    return HOMEKIT_INT(fan_speed);
 }
-
 void fan_speed_set(homekit_value_t value) {
-  if (value.float_value > 0 && // prevent losing state from power off
-      value.float_value <= 4 && FAN.active) {
-
-    int times =
-      speed_adjust_table[(int)FAN.rotationSpeed][(int)value.float_value];
-
-    for (int i = 0; i < times; i++) {
-      #ir_ac_wind_speed();
-      vTaskDelay(250 / portTICK_PERIOD_MS);
+    if (value.format != homekit_format_int) {
+        // printf("Invalid brightness-value format: %d\n", value.format);
+        return;
     }
-
-    fan_rotation_speed.value = value;
-    FAN.rotationSpeed = value.float_value;
-  } else {
-    fan_rotation_speed.value = HOMEKIT_FLOAT(FAN.rotationSpeed);
-    homekit_characteristic_notify(&fan_rotation_speed, fan_rotation_speed.value);
-  }
+    fan_speed = value.int_value;
+    fan_speed_write(fan_speed);
 }
-
 
 homekit_accessory_t *accessories[] = {
     HOMEKIT_ACCESSORY(.id=1, .category=homekit_accessory_category_lightbulb, .services=(homekit_service_t*[]){
@@ -193,8 +206,12 @@ homekit_accessory_t *accessories[] = {
                 ON, true,
                 .getter=fan_on_get,
                 .setter=fan_on_set,
-                &fan_rotation_speed
             ),
+            HOMEKIT_CHARACTERISTIC(
+                ROTATION_SPEED,100,
+                .getter=fan_speed_get,
+                .setter=fan_speed_set
+            )
             NULL
         }),
         NULL
@@ -214,5 +231,8 @@ void user_init(void) {
     wifi_init();
     led_init();
     fan_init();
+    fan_low_init();
+    fan_mid_init();
+    fan_high_init();    
     homekit_server_init(&config);
 }
