@@ -24,8 +24,10 @@ static void wifi_init() {
 
 const int led_gpio = 12;
 const int fan_gpio = 5;
-bool led_on = false;
-bool fan_on = false;
+bool led_on = true;
+bool fan_on = true;
+
+
 
 
 void led_write(bool on) {
@@ -45,6 +47,11 @@ void fan_init() {
     gpio_enable(fan_gpio, GPIO_OUTPUT);
     fan_write(fan_on);
 }
+
+homekit_characteristic_t fan_rotation_speed = HOMEKIT_CHARACTERISTIC_(
+  ROTATION_SPEED, 1, .min_value = (float[]){0}, .max_value = (float[]){3},
+  .getter = fan_speed_get, .setter = fan_speed_set);
+
 
 void led_identify_task(void *_args) {
     for (int i=0; i<3; i++) {
@@ -123,13 +130,11 @@ void fan_on_set(homekit_value_t value) {
 }
 
 
-homekit_value_t fan_speed_get() 
-{ 
+homekit_value_t fan_speed_get() { 
     return HOMEKIT_FLOAT(FAN.rotationSpeed); 
 }
 
 void fan_speed_set(homekit_value_t value) {
-  printf("FAN roation speed set: %f\n", value.float_value);
   if (value.float_value > 0 && // prevent losing state from power off
       value.float_value <= 4 && FAN.active) {
 
@@ -137,19 +142,17 @@ void fan_speed_set(homekit_value_t value) {
       speed_adjust_table[(int)FAN.rotationSpeed][(int)value.float_value];
 
     for (int i = 0; i < times; i++) {
-      ir_fan_rotation_speed();
-      vTaskDelay(1100 / portTICK_PERIOD_MS);
+      #ir_ac_wind_speed();
+      vTaskDelay(250 / portTICK_PERIOD_MS);
     }
 
     fan_rotation_speed.value = value;
     FAN.rotationSpeed = value.float_value;
   } else {
     fan_rotation_speed.value = HOMEKIT_FLOAT(FAN.rotationSpeed);
-    homekit_characteristic_notify(&fan_rotation_speed,fan_rotation_speed.value);
+    homekit_characteristic_notify(&fan_rotation_speed, fan_rotation_speed.value);
   }
 }
-
-
 
 
 homekit_accessory_t *accessories[] = {
@@ -166,7 +169,7 @@ homekit_accessory_t *accessories[] = {
         HOMEKIT_SERVICE(LIGHTBULB, .primary=true, .characteristics=(homekit_characteristic_t*[]){
             HOMEKIT_CHARACTERISTIC(NAME, "Light"),
             HOMEKIT_CHARACTERISTIC(
-                ON, false,
+                ON, true,
                 .getter=led_on_get,
                 .setter=led_on_set
             ),
@@ -187,16 +190,10 @@ homekit_accessory_t *accessories[] = {
         HOMEKIT_SERVICE(FAN, .primary=true, .characteristics=(homekit_characteristic_t*[]){
             HOMEKIT_CHARACTERISTIC(NAME, "Fan"),
             HOMEKIT_CHARACTERISTIC(
-                ON, false,
+                ON, true,
                 .getter=fan_on_get,
-                .setter=fan_on_set
-            ),
-            HOMEKIT_CHARACTERISTIC(
-                ROTATION_SPEED,1,
-                .min_value = (float[]){0}, 
-                .max_value = (float[]){3},
-                .getter = fan_speed_get, 
-                .setter = fan_speed_set
+                .setter=fan_on_set,
+                &fan_rotation_speed
             ),
             NULL
         }),
@@ -207,7 +204,8 @@ homekit_accessory_t *accessories[] = {
 
 homekit_server_config_t config = {
     .accessories = accessories,
-    .password = "230-31-999"
+    .password = "230-31-999",
+    .config = "ALR9"
 };
 
 void user_init(void) {
