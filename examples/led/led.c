@@ -205,13 +205,13 @@ homekit_accessory_t *accessories[] = {
             HOMEKIT_CHARACTERISTIC(
                 ON, true,
                 .getter=fan_on_get,
-                .setter=fan_on_set,
+                .setter=fan_on_set
             ),
             HOMEKIT_CHARACTERISTIC(
                 ROTATION_SPEED,100,
                 .getter=fan_speed_get,
                 .setter=fan_speed_set
-            )
+            ),
             NULL
         }),
         NULL
