@@ -9,6 +9,8 @@
 #include <homekit/homekit.h>
 #include <homekit/characteristics.h>
 #include "wifi.h"
+#include "homekit_callback.h"
+#include "homekit_config.h"
 
 
 static void wifi_init() {
@@ -27,12 +29,9 @@ const int fan_gpio = 5;
 const int fan_low = 2;
 const int fan_mid = 0;
 const int fan_high = 4;
-int fan_speed = 100;
+float fan_speed = 100;
 bool led_on = true;
 bool fan_on = true;
-
-
-
 
 void led_write(bool on) {
     gpio_write(led_gpio, on ? 0 : 1);
@@ -42,7 +41,7 @@ void fan_write(bool on) {
     gpio_write(fan_gpio, on ? 0 : 1);
 }
 
-void fan_speed_write(int fan_s) {
+void fan_speed_write(float fan_s) {
     if(fan_s<30){
         gpio_write(fan_low,1);
     }
@@ -157,16 +156,20 @@ void fan_on_set(homekit_value_t value) {
 
 
 homekit_value_t fan_speed_get() {
-    return HOMEKIT_INT(fan_speed);
+    return HOMEKIT_FLOAT(fan_speed);
 }
 void fan_speed_set(homekit_value_t value) {
-    if (value.format != homekit_format_int) {
+    if (value.format != homekit_format_float) {
         // printf("Invalid brightness-value format: %d\n", value.format);
         return;
     }
-    fan_speed = value.int_value;
+    fan_speed = value.float_value;
     fan_speed_write(fan_speed);
 }
+
+
+
+
 
 homekit_accessory_t *accessories[] = {
     HOMEKIT_ACCESSORY(.id=1, .category=homekit_accessory_category_lightbulb, .services=(homekit_service_t*[]){
